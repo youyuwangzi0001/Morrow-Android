@@ -1,0 +1,42 @@
+# ── 构建产物与本地状态 ──
+.gradle/
+build/
+app/build/
+.kotlin/
+local.properties
+
+# ── 中间产物与日志 ──
+.build/
+*.log
+
+# ── 编辑与系统文件 ──
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ── 生成物：每次跑测试或验收脚本都会重写 ──
+# 这些 JSON 是某次本机运行的中间证据，写进 docs/evidence/ 的那份才是留档。
+app/build-evidence/
+docs/evidence/*.tmp
+
+# ── 历史记录：写于实现之前的设计卡，路径已与扁平化后的源码不符 ──
+docs/cards/
+
+# ── 内部工程方案：记录本机基线与逐轮执行过程，不面向读者 ──
+docs/REBUILD-PLAN.md
+
+# ── 本地工作目录：注释备份、临时脚本等，不参与交付 ──
+.morrow/
+
+# ── 一次性合并脚本：功能已并入生产代码，留在这里会与真实实现混在一起 ──
+scripts/tmp-merge-relay-state.mjs
+scripts/tmp-merge-ui.mjs
+
+# ── 刻意入库的东西 ──
+# deliver/ 下的 APK 与 SHA256SUMS.txt 随仓库分发，同时在 Releases 发布同一份文件。
+# keystore/ 同样入库：分发包必须能被同一把钥匙重新签名，否则覆盖安装会因签名不一致失败。
+#   keystore/release.keystore      交付签名
+#   keystore/debug.keystore        调试签名（口令固定为 android）
+#   keystore/keystore.properties   release 别名与口令
+# 这三份不是上架密钥；上架前必须换成正式密钥并把它们移出仓库。

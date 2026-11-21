@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- 与桌面 styles.css 的 bg / surface 同值：启动阶段不出现白屏或异色底 -->
+  <color name="bg_ink_900">#0B0D10</color>
+  <color name="bg_ink_800">#10141A</color>
+</resources>

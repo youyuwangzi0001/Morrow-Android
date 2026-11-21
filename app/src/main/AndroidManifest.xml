@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!--
+    与桌面建立局域网 WSS 连接必须声明 INTERNET。
+    没有它时 socket 连接会在真机上直接抛 SecurityException；
+    Robolectric/JVM 测试不会暴露这一点 —— 合并清单里确实没有它，
+    是审计时逐条核对 APK badging 才发现的。
+  -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <!-- 审批「允许」前必须验证本机生物识别；未录入时降级为仅拒绝。 -->
+  <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+  <!--
+    长任务跟盯的前台服务。
+
+    FOREGROUND_SERVICE：Android 9（API 28）起启动任何前台服务都需要。
+    FOREGROUND_SERVICE_DATA_SYNC：Android 14（API 34）起按类型授予，
+      不申请则 startForeground(type=dataSync) 抛 SecurityException。
+    POST_NOTIFICATIONS：Android 13（API 33）起通知是运行期权限。
+      不给的话前台服务仍能跑，但常驻通知不可见 —— 用户会以为任务丢了跟盯。
+      降级路径见 ForegroundSyncState.visibility() 返回的 NotificationSuppressed。
+  -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+  <application
+    android:name=".MorrowApplication"
+    android:allowBackup="true"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    android:fullBackupContent="@xml/backup_rules"
+    android:icon="@mipmap/ic_launcher"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:label="@string/app_name"
+    android:supportsRtl="true"
+    android:enableOnBackInvokedCallback="true"
+    android:theme="@style/Theme.Morrow">
+
+    <activity
+      android:name=".MainActivity"
+      android:exported="true"
+      android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|uiMode|density|keyboardHidden"
+      android:launchMode="singleTop"
+      android:resizeableActivity="true"
+      android:windowSoftInputMode="adjustResize"
+      android:theme="@style/Theme.Morrow">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <!--
+        刻意**不**声明 morrow:// 的 VIEW intent-filter。
+        通知的点击是用显式 Intent（setClass(MainActivity)）发的，不需要 filter；
+        而一旦声明了 filter，任何应用都能构造 morrow:// 链接唤起本应用，
+        等于把「打开某条审批」变成一个外部可触发的能力。
+      -->
+    </activity>
+
+    <!--
+      审批「拒绝」按钮的接收器。
+      exported=false：只有本应用自己的 PendingIntent 能触发它；
+      导出会成为外部应用伪造「拒绝」决策的入口。
+    -->
+    <receiver
+      android:name=".ApprovalActionReceiver"
+      android:exported="false" />
+
+    <!--
+      汇总通知上的「全部清除」动作（M-10）。
+
+      exported=false：显式 Intent 只会由本应用的 PendingIntent 触发，
+      不需要也不应该让外部应用发这条广播。
+    -->
+    <receiver
+      android:name=".DigestActionReceiver"
+      android:exported="false" />
+
+    <!--
+      长任务跟盯的前台服务。
+
+      exported=false：只由本应用启动。
+
+      foregroundServiceType="dataSync"：Android 14（API 34）起必须显式声明类型，
+      不声明会在 startForeground 时抛 MissingForegroundServiceTypeException。
+      选 dataSync 而不是 shortService：
+      - shortService 上限约 3 分钟，长任务会跑几十分钟，必然被砍；
+      - dataSync 允许长时运行（Android 15 起有 6h/24h 累计限额，
+        到点由 ForegroundSyncService.onTimeout 主动停止）。
+
+      stopWithTask="false"：用户从最近任务里划掉应用时**不要**停服务 ——
+      划掉界面不等于「不想再跟盯任务了」，服务里有明确的「停止跟盯」按钮。
+    -->
+    <service
+      android:name=".ForegroundSyncService"
+      android:exported="false"
+      android:foregroundServiceType="dataSync"
+      android:stopWithTask="false" />
+  </application>
+
+</manifest>

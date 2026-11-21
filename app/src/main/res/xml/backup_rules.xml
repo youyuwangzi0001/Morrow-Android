@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+  <exclude domain="sharedpref" path="." />
+  <!--
+    配凭据（长期 ECDH 私钥 + sessionKey）落在 filesDir。
+
+    为什么必须排除：
+    1. Keystore 里的 AES 密钥**不随备份迁移**（绑定设备），所以备份走的密文
+       在别的设备上解不开 —— 换机后 App 会读到一份解不开的文件，
+       报「Keystore 不可用」，用户被迫重新配对，却不知道原因。
+    2. 密文本身不该离开本机：多一份拷贝就多一个将来被解开的可能。
+
+    排除后行为是明确的：换机 → 没有凭据文件 → 状态为「未配对」→ 用户重新扫码。
+    这比「有一份解不开的密文」清楚得多。
+  -->
+  <exclude domain="file" path="relay-credentials.bin" />
+</full-backup-content>
