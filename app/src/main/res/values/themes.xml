@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="Theme.Morrow" parent="android:Theme.Material.NoActionBar">
+    <item name="android:windowBackground">@color/bg_ink_900</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <!--
+      系统栏图标明暗不能写死：Morrow 的主题是应用内切换（墨夜/素纸），
+      写死 false 会让素纸（浅底）下的状态栏图标变成白字白底、直接看不见。
+      真正生效的反色在运行期完成：ui/system/MorrowScaffold.kt 的 ApplySystemBars()
+      按当前背景亮度动态设置 isAppearanceLightStatusBars / isAppearanceLightNavigationBars。
+      这里保留一个与默认主题（墨夜）一致的初始值，仅用于首帧之前的极短窗口。
+    -->
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:windowLightNavigationBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowActionBar">false</item>
+  </style>
+</resources>

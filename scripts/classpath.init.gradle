@@ -1,0 +1,14 @@
+// 取 test runtime classpath，供「绕过 Gradle test worker 直接跑 JUnit」使用。
+// 背景：本机工作区路径含中文，Gradle 的 GradleWorkerMain 在该路径下无法启动
+// （ClassNotFoundException + GBK 编码），这是环境限制而非工程缺陷。
+allprojects {
+  tasks.register("printTestClasspath") {
+    doLast {
+      def cfg = project.configurations.findByName("debugUnitTestRuntimeClasspath")
+      if (cfg == null) { println("NO_CONFIG"); return }
+      println("CLASSPATH_BEGIN")
+      println(cfg.files.join(File.pathSeparator))
+      println("CLASSPATH_END")
+    }
+  }
+}
