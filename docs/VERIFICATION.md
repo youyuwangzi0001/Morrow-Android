@@ -6,7 +6,7 @@
 
 | 文件 | 字节数 | SHA-256 |
 |---|---|---|
-| `Morrow-Android-0.2.0.apk` | 2,323,442 | `07bdb684ee52aaed8db4327755545b375216dd1e091dc60efb7b6e91bbcf276c` |
+| `Morrow-Android-0.2.0.apk` | 2,323,442 | `6e713bfd7a8099b0cfbad45f41e17a7405c3ade301beeb0ce74fb0e6f29a4428` |
 
 APK 的静态事实（`aapt2 dump badging` 实测）：
 
